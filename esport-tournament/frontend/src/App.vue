@@ -1,7 +1,11 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView, useRoute } from "vue-router";
+import NavBar from "./components/NavBar.vue";
+
+const route = useRoute();
 </script>
 
 <template>
-  <HelloWorld />
+  <NavBar v-if="!route.meta.hideNavbar" />
+  <RouterView />
 </template>

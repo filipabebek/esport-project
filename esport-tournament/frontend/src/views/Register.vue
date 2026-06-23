@@ -1,33 +1,196 @@
 <template>
-  <div>
-    <h1>Register</h1>
+  <div class="login-page">
 
-    <input v-model="username" placeholder="Username" />
-    <input v-model="email" placeholder="Email" />
-    <input v-model="password" type="password" placeholder="Password" />
+    <div class="login-card">
 
-    <button @click="register">Register</button>
+      <div class="logo">
+        <img src="/logo.png" alt="logo" />
+      </div>
+
+      <h1>Create account</h1>
+      <p class="subtitle">Join eSport Tournament platform</p>
+
+      <div class="form">
+
+        <input
+          v-model="username"
+          type="text"
+          placeholder="Username"
+        />
+
+        <input
+          v-model="email"
+          type="email"
+          placeholder="Email"
+        />
+
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Password"
+        />
+
+        <input
+          v-model="confirmPassword"
+          type="password"
+          placeholder="Confirm password"
+        />
+
+        <button @click="register">Register</button>
+
+        <button class="cancel-btn" @click="cancel">
+          Cancel
+        </button>
+
+      </div>
+
+      <p class="register">
+        Already have an account?
+        <router-link to="/login">Login</router-link>
+      </p>
+
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import api from "../services/api";
 import { useRouter } from "vue-router";
+import api from "../services/api";
 
 const username = ref("");
 const email = ref("");
 const password = ref("");
+const confirmPassword = ref("");
 
 const router = useRouter();
 
 const register = async () => {
-  await api.post("/auth/register", {
-    username: username.value,
-    email: email.value,
-    password: password.value,
-  });
+  try {
+    if (password.value !== confirmPassword.value) {
+      alert("Passwords do not match!");
+      return;
+    }
 
+    await api.post("/auth/register", {
+      username: username.value,
+      email: email.value,
+      password: password.value,
+    });
+
+    router.push("/login");
+
+  } catch (err) {
+    console.error("Register failed:", err);
+  }
+};
+
+const cancel = () => {
   router.push("/");
 };
 </script>
+
+<style scoped>
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: radial-gradient(circle at top, #1a1a2e, #0f0f14);
+}
+
+.login-card {
+  width: 380px;
+  padding: 35px;
+
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+
+  color: white;
+  text-align: center;
+
+  box-shadow: 0 0 30px rgba(124, 77, 255, 0.15);
+}
+
+.logo img {
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 10px 0 5px;
+  font-size: 36px;
+}
+
+.subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid #7c4dff;
+}
+
+button {
+  margin-top: 10px;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #7c4dff;
+  color: white;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #5e35b1;
+  transform: translateY(-2px);
+}
+
+/* cancel button */
+.cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.cancel-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.register {
+  margin-top: 15px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.register a {
+  color: #7c4dff;
+}
+</style>
