@@ -139,9 +139,15 @@ function logout() {
   display: flex;
   align-items: center;
   padding: 0 20px;
-  height: 60px;
-  color: white;
-  position: relative;
+  height: 65px;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+
+  background: transparent;
 }
 
 .logo img {
@@ -158,7 +164,7 @@ function logout() {
 }
 
 .nav-btn {
-  color: #4BDE4B;
+  color: rgba(255,255,255,0.75);
   text-decoration: none;
   font-weight: 500;
   padding: 6px 10px;
@@ -167,8 +173,8 @@ function logout() {
 }
 
 .nav-btn:hover {
-  background: rgba(255,255,255,0.2);
-  transform: translateY(-1px);
+  color: #4BDE4B;
+  background: rgba(75, 222, 75, 0.08);
 }
 
 .spacer {
@@ -182,6 +188,10 @@ function logout() {
 }
 
 .icon-btn i {
+  color: rgba(255,255,255,0.8);
+}
+
+.icon-btn:hover i {
   color: #4BDE4B;
 }
 
@@ -196,9 +206,8 @@ function logout() {
 }
 
 .icon-btn:hover {
-  transform: scale(1.15);
+  transform: translateY(-1px);
 }
-
 
 .user-menu {
   position: relative;
@@ -209,8 +218,9 @@ function logout() {
   position: absolute;
   right: 0;
   top: 30px;
-  background: white;
-  color: black;
+  background: rgba(20,20,25,0.95);
+  backdrop-filter: blur(10px);
+  color: white;
   min-width: 150px;
   border-radius: 6px;
   overflow: hidden;
@@ -229,13 +239,14 @@ function logout() {
   border: none;
   width: 100%;
   text-align: left;
-  background: white;
+  background: transparent;
+  color: white;
   cursor: pointer;
 }
 
 .dropdown a:hover,
 .dropdown button:hover {
-  background: #eee;
+  background: rgba(75,222,75,0.1);
 }
 
 .mobile-menu {

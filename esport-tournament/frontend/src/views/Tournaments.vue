@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Tournaments</h1>
+    <h1></h1>
 
     <div v-for="t in tournaments" :key="t._id">
       <h3>{{ t.name }}</h3>

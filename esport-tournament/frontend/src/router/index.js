@@ -5,6 +5,7 @@ import Register from "../views/Register.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Tournaments from "../views/Tournaments.vue";
 import HomePage from "../views/HomePage.vue";
+import Games from "../views/Games.vue";
 
 import MyTournamentsPage from "../views/MyTournamentsPage.vue";
 import CreateTournamentPage from "../views/CreateTournamentPage.vue";
@@ -16,10 +17,11 @@ const router = createRouter ({
   routes: [
   { path: "/", component: HomePage },
   { path: "/home", component: HomePage },
+  { path: "/tournaments", component: Tournaments },
+  { path: "/games", component: Games },
   { path: "/login", component: Login, meta: {hideNavbar: true} },
   { path: "/register", component: Register, meta: {hideNavbar: true} },
   { path: "/dashboard", component: Dashboard },
-  { path: "/tournaments", component: Tournaments },
 
   { path: "/my-tournaments", component: MyTournamentsPage },
   { path: "/tournaments/create", component: CreateTournamentPage },

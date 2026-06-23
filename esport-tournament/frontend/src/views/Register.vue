@@ -1,14 +1,16 @@
 <template>
-  <div class="login-page">
+  <div class="register-page">
 
-    <div class="login-card">
+    <div class="bg-glow"></div>
+
+    <div class="register-card">
 
       <div class="logo">
         <img src="/logo.png" alt="logo" />
       </div>
 
       <h1>Create account</h1>
-      <p class="subtitle">Join eSport Tournament platform</p>
+      <p class="subtitle">Join the eSport Tournament platform</p>
 
       <div class="form">
 
@@ -36,7 +38,9 @@
           placeholder="Confirm password"
         />
 
-        <button @click="register">Register</button>
+        <button @click="register">
+          Register
+        </button>
 
         <button class="cancel-btn" @click="cancel">
           Cancel
@@ -44,7 +48,7 @@
 
       </div>
 
-      <p class="register">
+      <p class="login-link">
         Already have an account?
         <router-link to="/login">Login</router-link>
       </p>
@@ -80,7 +84,6 @@ const register = async () => {
     });
 
     router.push("/login");
-
   } catch (err) {
     console.error("Register failed:", err);
   }
@@ -92,45 +95,60 @@ const cancel = () => {
 </script>
 
 <style scoped>
-.login-page {
+.register-page {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  background: radial-gradient(circle at top, #1a1a2e, #0f0f14);
+  background: #0b0c10;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-card {
+.bg-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: rgba(75, 222, 75, 0.15);
+  filter: blur(120px);
+  top: -120px;
+  right: -120px;
+  border-radius: 50%;
+}
+
+.register-card {
   width: 380px;
   padding: 35px;
 
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
+  backdrop-filter: blur(12px);
 
   color: white;
   text-align: center;
 
-  box-shadow: 0 0 30px rgba(124, 77, 255, 0.15);
+  box-shadow: 0 0 40px rgba(75, 222, 75, 0.08);
+  z-index: 2;
 }
 
 .logo img {
-  height: 50px;
+  height: 55px;
   margin-bottom: 10px;
 }
 
 h1 {
-  margin: 10px 0 5px;
-  font-size: 36px;
+  margin: 10px 0 6px;
+  font-size: 40px;
+  font-weight: 700;
 }
 
 .subtitle {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 20px;
+  font-size: 13px;
+  opacity: 0.6;
+  margin-bottom: 25px;
 }
 
 .form {
@@ -140,29 +158,29 @@ h1 {
 }
 
 input {
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
+  padding: 12px 14px;
+  border-radius: 10px;
 
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+
   color: white;
+  outline: none;
+  transition: 0.2s;
 }
 
 input:focus {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid #7c4dff;
+  border-color: #4BDE4B;
+  box-shadow: 0 0 15px rgba(75, 222, 75, 0.2);
 }
 
 button {
-  margin-top: 10px;
   padding: 12px;
-
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
 
-  background: #7c4dff;
-  color: white;
+  background: #4BDE4B;
+  color: black;
   font-weight: bold;
 
   cursor: pointer;
@@ -170,27 +188,28 @@ button {
 }
 
 button:hover {
-  background: #5e35b1;
+  background: #3cc63c;
   transform: translateY(-2px);
 }
 
-/* cancel button */
 .cancel-btn {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
 .cancel-btn:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.register {
+.login-link {
   margin-top: 15px;
   font-size: 12px;
   opacity: 0.7;
 }
 
-.register a {
-  color: #7c4dff;
+.login-link a {
+  color: #4BDE4B;
+  text-decoration: none;
 }
 </style>
