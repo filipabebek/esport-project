@@ -1,4 +1,4 @@
-const mongoose = require ("mongoose");
+const mongoose = require("mongoose");
 
 const tournamentSchema = new mongoose.Schema(
     {
@@ -6,17 +6,24 @@ const tournamentSchema = new mongoose.Schema(
         game: String,
         description: String,
         maxPlayers: Number,
+        prize: String,
+        date: String,
+        region: String,
+        players: {
+            type: Number,
+            default: 0
+        },
         status: {
             type: String,
-            enum: ["open", "ongoing", "finished"],
-            default: "open",
+            enum: ["LIVE", "UPCOMING", "ENDED"],
+            default: "UPCOMING",
         },
         organizer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         },
     },
-    { timestamps:  true }
+    { timestamps: true }
 );
 
 module.exports = mongoose.model("Tournament", tournamentSchema);

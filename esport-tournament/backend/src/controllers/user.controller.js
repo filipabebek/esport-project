@@ -1,8 +1,5 @@
 const User = require("../models/user.model");
 
-//
-// 👤 GET ALL USERS (ADMIN)
-//
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
@@ -12,9 +9,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-//
-// 👤 GET MY PROFILE (LOGGED USER)
-//
 exports.getMyProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -29,9 +23,6 @@ exports.getMyProfile = async (req, res) => {
   }
 };
 
-//
-// ✏️ UPDATE USER
-//
 exports.updateUser = async (req, res) => {
   try {
     const { username, email } = req.body;
@@ -48,9 +39,6 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-//
-// 🗑️ DELETE USER (ADMIN)
-//
 exports.deleteUser = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);

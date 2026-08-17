@@ -1,12 +1,10 @@
 <template>
   <header class="navbar">
 
-    <!-- LOGO -->
     <router-link to="/" class="logo">
       <img src="/logo.png" alt="Logo" />
     </router-link>
 
-    <!-- Nav u sredini -->
     <nav class="center-nav">
       <router-link
         v-for="item in menuItems"
@@ -20,15 +18,12 @@
 
     <div class="spacer"></div>
 
-    <!-- Desni navbar -->
     <div class="right-actions">
 
-      <!-- NOTIFICATIONS -->
       <button class="icon-btn">
         <i class="mdi mdi-bell"></i>
       </button>
 
-      <!-- User meni -->
       <div class="user-menu">
         <button class="icon-btn">
             <i class="mdi mdi-account-circle"></i>
@@ -91,7 +86,6 @@ const menuItems = computed(() => {
       { title: "Home", to: "/" },
       { title: "Tournaments", to: "/tournaments" },
       { title: "Games", to: "/games" },
-      { title: "Leaderboard", to: "/leaderboard" },
       { title: "Login", to: "/login" },
       { title: "Registration", to: "/register" },
     ];
@@ -102,7 +96,6 @@ const menuItems = computed(() => {
       { title: "Home", to: "/" },
       { title: "Tournaments", to: "/tournaments" },
       { title: "My Tournaments", to: "/my-tournaments" },
-      { title: "Leaderboard", to: "/leaderboard" },
     ];
   }
 
@@ -134,14 +127,13 @@ function logout() {
 </script>
 
 <style scoped>
-/* MAIN BAR */
 .navbar {
   display: flex;
   align-items: center;
   padding: 0 20px;
   height: 65px;
 
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
