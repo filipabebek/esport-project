@@ -1,36 +1,30 @@
 <template>
   <div class="profile-page">
-
     <div class="bg-blur"></div>
     <div class="bg-blur-second"></div>
 
     <main class="profile-container">
-      <div
-        v-if="loading"
-        class="profile-loading"
-      >
+      <div v-if="loading" class="profile-loading">
         <i class="mdi mdi-loading mdi-spin"></i>
         <span>Loading profile...</span>
       </div>
 
-      <div
-        v-else-if="error"
-        class="profile-error"
-      >
+      <div v-else-if="error" class="profile-error">
         {{ error }}
       </div>
 
       <template v-else-if="profile">
         <section class="page-header">
-          <p class="tag">Player Profile</p>
-          <h1>Your <span>gaming profile</span></h1>
-
-          <p class="subtitle">Track your competitive progress, tournament history and account details.</p>
+          <p class="tag">{{ formattedRole }} Profile</p>
+          <h1>Your <span>profile</span></h1>
+          <p class="subtitle">Manage your account and activity on eSports Tournament.</p>
         </section>
 
         <section class="profile-banner">
           <div class="profile-main">
-            <div class="avatar">{{ userInitial }}<span class="online-dot"></span>
+            <div class="avatar">
+              {{ userInitial }}
+              <span class="online-dot"></span>
             </div>
 
             <div class="profile-details">
@@ -39,7 +33,7 @@
                 <span class="role-badge">{{ formattedRole }}</span>
               </div>
 
-              <p class="profile-description">Competitive player on eSports Tournament.</p>
+              <p class="profile-description">{{ profileDescription }}</p>
 
               <div class="profile-meta">
                 <span><i class="mdi mdi-email-outline"></i>{{ profile.user?.email || "No email" }}</span>
@@ -48,362 +42,312 @@
               </div>
             </div>
           </div>
-
-          <button class="edit-btn">
-            <i class="mdi mdi-pencil-outline"></i>Edit profile
-          </button>
         </section>
 
-        <section class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="mdi mdi-trophy-outline"></i>
+        <template v-if="profile.user?.role === 'player'">
+          <section class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="mdi mdi-trophy-outline"></i></div>
+              <div>
+                <strong>{{ profile.stats?.tournaments ?? 0 }}</strong>
+                <span>Tournaments</span>
+              </div>
             </div>
 
-            <div>
-              <strong>{{ profile.stats?.tournaments ?? 0 }}</strong>
-              <span>Tournaments</span>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="mdi mdi-crown-outline"></i></div>
+              <div>
+                <strong>{{ profile.stats?.wins ?? 0 }}</strong>
+                <span>Wins</span>
+              </div>
             </div>
-          </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="mdi mdi-crown-outline"></i>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="mdi mdi-chart-line"></i></div>
+              <div>
+                <strong>{{ profile.stats?.winRate ?? 0 }}%</strong>
+                <span>Win rate</span>
+              </div>
             </div>
-            <div>
-              <strong>{{ profile.stats?.wins ?? 0 }}</strong>
-              <span>Wins</span>
-            </div>
-          </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="mdi mdi-chart-line"></i>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="mdi mdi-medal-outline"></i></div>
+              <div>
+                <strong>{{ profile.stats?.globalRank ? "#" + profile.stats.globalRank : "—" }}</strong>
+                <span>Global rank</span>
+              </div>
             </div>
-            <div>
-              <strong>{{ profile.stats?.winRate ?? 0 }}%</strong>
-              <span>Win rate</span>
-            </div>
-          </div>
+          </section>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="mdi mdi-medal-outline"></i>
-            </div>
-            <div>
-              <strong>
-                {{
-                  profile.stats?.globalRank
-                    ? "#" + profile.stats.globalRank
-                    : "—"
-                }}
-              </strong>
-              <span>Global rank</span>
-            </div>
-          </div>
-        </section>
-
-        <section
-            v-if="
-                profile.user?.role === 'organizer' ||
-                profile.user?.role === 'admin'
-            "
-            class="organizer-section"
-            >
-            <div class="section-header">
+          <section class="dashboard-grid">
+            <div class="dashboard-card tournaments-card">
+              <div class="section-header">
                 <div>
+                  <h3>Recent tournaments</h3>
+                  <p>Your latest competitive activity.</p>
+                </div>
+
+                <router-link to="/my-tournaments">
+                  View all
+                  <i class="mdi mdi-arrow-right"></i>
+                </router-link>
+              </div>
+
+              <div v-if="profile.recentTournaments?.length" class="tournament-list">
+                <div
+                  v-for="tournament in profile.recentTournaments"
+                  :key="tournament.participationId"
+                  class="tournament-row"
+                >
+                  <div class="tournament-icon">
+                    <i class="mdi mdi-gamepad-variant-outline"></i>
+                  </div>
+
+                  <div class="tournament-info">
+                    <strong>{{ tournament.name }}</strong>
+                    <span>
+                      {{ tournament.game }}
+                      <span v-if="tournament.region" class="dot">•</span>
+                      {{ tournament.region }}
+                    </span>
+                  </div>
+
+                  <div
+                    v-if="tournament.placement"
+                    class="placement"
+                    :class="{ winner: tournament.placement === 1, second: tournament.placement === 2 }"
+                  >
+                    #{{ tournament.placement }}
+                  </div>
+
+                  <div v-else class="tournament-status">
+                    {{ tournament.tournamentStatus }}
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="empty-state">
+                <i class="mdi mdi-trophy-outline"></i>
+                <p>You haven't joined any tournaments yet.</p>
+                <router-link to="/tournaments" class="empty-link">Browse tournaments</router-link>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="section-header">
+                <div>
+                  <h3>Favorite games</h3>
+                  <p>Your most played titles.</p>
+                </div>
+                <i class="mdi mdi-controller-classic-outline header-icon"></i>
+              </div>
+
+              <div v-if="profile.favoriteGames?.length" class="games-list">
+                <div v-for="game in profile.favoriteGames" :key="game.game" class="game-item">
+                  <div class="game-icon">
+                    <i class="mdi mdi-controller-classic-outline"></i>
+                  </div>
+
+                  <div>
+                    <strong>{{ game.game }}</strong>
+                    <span>{{ game.tournamentCount }} {{ game.tournamentCount === 1 ? "tournament" : "tournaments" }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="empty-state">
+                <i class="mdi mdi-controller-classic-outline"></i>
+                <p>No games played yet.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-grid bottom-grid">
+            <div class="dashboard-card">
+              <div class="section-header">
+                <div>
+                  <h3>Achievements</h3>
+                  <p>Milestones from your competitive journey.</p>
+                </div>
+                <i class="mdi mdi-medal-outline header-icon"></i>
+              </div>
+
+              <div v-if="profile.achievements?.length" class="achievements-grid">
+                <div
+                  v-for="achievement in profile.achievements"
+                  :key="achievement.name"
+                  class="achievement"
+                  :class="{ locked: !achievement.unlocked }"
+                >
+                  <div class="achievement-icon">
+                    <i :class="['mdi', achievement.unlocked ? achievement.icon : 'mdi-lock-outline']"></i>
+                  </div>
+
+                  <div>
+                    <strong>{{ achievement.name }}</strong>
+                    <span>{{ achievement.description }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="empty-state">
+                <i class="mdi mdi-medal-outline"></i>
+                <p>No achievements available.</p>
+              </div>
+            </div>
+          </section>
+        </template>
+
+        <template v-else-if="profile.user?.role === 'organizer'">
+          <section class="organizer-section">
+            <div class="section-header">
+              <div>
                 <h3>Organizer overview</h3>
                 <p>Manage your tournaments and participants.</p>
-                </div>
+              </div>
+              <i class="mdi mdi-shield-crown-outline header-icon"></i>
             </div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                <div class="stat-icon">
+
+            <div class="stats-grid organizer-stats">
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-trophy-outline"></i></div>
+                <div>
+                  <strong>{{ profile.organizerStats?.organizedTournaments ?? 0 }}</strong>
+                  <span>Organized tournaments</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-broadcast"></i></div>
+                <div>
+                  <strong>{{ profile.organizerStats?.activeTournaments ?? 0 }}</strong>
+                  <span>Active tournaments</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-account-group-outline"></i></div>
+                <div>
+                  <strong>{{ profile.organizerStats?.totalParticipants ?? 0 }}</strong>
+                  <span>Total participants</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="organizer-content">
+            <div class="dashboard-card organizer-tournaments-card">
+              <div class="section-header">
+                <div>
+                  <h3>Your organized tournaments</h3>
+                  <p>Tournaments created and managed by you.</p>
+                </div>
+
+                <router-link to="/tournaments/create">
+                  Create tournament
+                  <i class="mdi mdi-plus"></i>
+                </router-link>
+              </div>
+
+              <div v-if="profile.organizedTournaments?.length" class="tournament-list">
+                <div
+                  v-for="tournament in profile.organizedTournaments"
+                  :key="tournament._id"
+                  class="tournament-row"
+                >
+                  <div class="tournament-icon">
                     <i class="mdi mdi-trophy-outline"></i>
+                  </div>
+
+                  <div class="tournament-info">
+                    <strong>{{ tournament.name }}</strong>
+                    <span>
+                      {{ tournament.game }}
+                      <span v-if="tournament.region" class="dot">•</span>
+                      {{ tournament.region }}
+                    </span>
+                  </div>
+
+                  <div class="tournament-status">
+                    {{ tournament.status }}
+                  </div>
                 </div>
+              </div>
+
+              <div v-else class="empty-state">
+                <i class="mdi mdi-trophy-outline"></i>
+                <p>You haven't created any tournaments yet.</p>
+                <router-link to="/tournaments/create" class="empty-link">Create your first tournament</router-link>
+              </div>
+            </div>
+
+            <div class="dashboard-card organizer-account-card">
+              <div class="section-header">
                 <div>
-                    <strong>{{ profile.organizerStats?.organizedTournaments ?? 0 }}</strong>
-                    <span>Organized tournaments</span>
+                  <h3>Account</h3>
+                  <p>Your account information.</p>
                 </div>
-                </div>
-
-                <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="mdi mdi-broadcast"></i>
-                </div>
-                <div>
-                    <strong>{{ profile.organizerStats?.activeTournaments ?? 0 }}</strong>
-                    <span>Active tournaments</span>
-                </div>
-                </div>
-
-                <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="mdi mdi-account-group-outline"></i>
-                </div>
-
-                <div>
-                    <strong>{{ profile.organizerStats?.totalParticipants ?? 0 }}</strong>
-                    <span>Total participants</span>
-                </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="dashboard-grid">
-          <div class="dashboard-card tournaments-card">
-            <div class="section-header">
-              <div>
-                <h3>Recent tournaments</h3>
-                <p>Your latest competitive activity.</p>
+                <i class="mdi mdi-account-outline header-icon"></i>
               </div>
-              <router-link to="/my-tournaments">View all<i class="mdi mdi-arrow-right"></i>
-              </router-link>
-            </div>
 
-            <div
-              v-if="profile.recentTournaments?.length"
-              class="tournament-list"
-            >
-
-              <div
-                v-for="tournament in profile.recentTournaments"
-                :key="tournament.participationId"
-                class="tournament-row"
-              >
-
-                <div class="tournament-icon"><i class="mdi mdi-gamepad-variant-outline"></i></div>
-                <div class="tournament-info">
-                  <strong>{{ tournament.name }}</strong>
-                  <span>{{ tournament.game }}<span
-                      v-if="tournament.region"
-                      class="dot"
-                    >
-                      •
-                    </span>{{ tournament.region }}</span>
+              <div class="account-list">
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Username</span>
+                    <strong>{{ profile.user?.username || "—" }}</strong>
+                  </div>
+                  <i class="mdi mdi-account-outline"></i>
                 </div>
 
-                <div
-                  v-if="tournament.placement"
-                  class="placement"
-                  :class="{
-                    winner: tournament.placement === 1,
-                    second: tournament.placement === 2
-                  }"
-                >
-                  #{{ tournament.placement }}
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Email</span>
+                    <strong>{{ profile.user?.email || "—" }}</strong>
+                  </div>
+                  <i class="mdi mdi-email-outline"></i>
                 </div>
 
-                <div
-                  v-else
-                  class="tournament-status"
-                >
-                  {{ tournament.tournamentStatus }}
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Role</span>
+                    <strong class="green">{{ formattedRole }}</strong>
+                  </div>
+                  <i class="mdi mdi-shield-account-outline"></i>
+                </div>
+
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Status</span>
+                    <strong class="green">{{ profile.user?.status || "Active" }}</strong>
+                  </div>
+                  <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+
+                <div v-if="profile.user?.joinedAt" class="account-row">
+                  <div>
+                    <span class="account-label">Member since</span>
+                    <strong>{{ new Date(profile.user.joinedAt).toLocaleDateString() }}</strong>
+                  </div>
+                  <i class="mdi mdi-calendar-outline"></i>
                 </div>
               </div>
             </div>
-
-            <div
-              v-else
-              class="empty-state"
-            >
-
-              <i class="mdi mdi-trophy-outline"></i>
-
-              <p>You haven't joined any tournaments yet.</p>
-
-              <router-link
-                to="/tournaments"
-                class="empty-link"
-              >Browse tournaments</router-link>
-            </div>
-          </div>
-
-          <div class="dashboard-card">
-            <div class="section-header">
-              <div>
-                <h3>Favorite games</h3>
-                <p>Your most played titles.</p>
-              </div>
-              <i class="mdi mdi-controller-classic-outline header-icon"></i>
-            </div>
-
-            <div
-              v-if="profile.favoriteGames?.length"
-              class="games-list"
-            >
-
-              <div
-                v-for="game in profile.favoriteGames"
-                :key="game.game"
-                class="game-item"
-              >
-
-                <div class="game-icon"><i class="mdi mdi-controller-classic-outline"></i></div>
-                <div>
-                  <strong>{{ game.game }}</strong>
-                  <span>{{ game.tournamentCount }}
-                    {{
-                      game.tournamentCount === 1
-                        ? "tournament"
-                        : "tournaments"
-                    }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="empty-state"
-            >
-
-              <i class="mdi mdi-controller-classic-outline"></i>
-              <p>No games played yet.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="dashboard-grid bottom-grid">
-          <div class="dashboard-card">
-            <div class="section-header">
-              <div>
-                <h3>Achievements</h3>
-                <p>Milestones from your competitive journey.</p>
-              </div>
-              <i class="mdi mdi-medal-outline header-icon"></i>
-            </div>
-
-            <div
-              v-if="profile.achievements?.length"
-              class="achievements-grid"
-            >
-
-              <div
-                v-for="achievement in profile.achievements"
-                :key="achievement.name"
-                class="achievement"
-                :class="{
-                  locked: !achievement.unlocked
-                }"
-              >
-
-                <div class="achievement-icon">
-
-                  <i
-                    :class="[
-                      'mdi',
-
-                      achievement.unlocked
-                        ? achievement.icon
-                        : 'mdi-lock-outline'
-                    ]"
-                  ></i>
-
-                </div>
-                <div>
-                  <strong>{{ achievement.name }}</strong>
-                  <span>{{ achievement.description }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="empty-state"
-            >
-
-              <i class="mdi mdi-medal-outline"></i>
-              <p>No achievements available.</p>
-            </div>
-          </div>
-
-          <div class="dashboard-card account-card">
-            <div class="section-header">
-              <div>
-                <h3>Account</h3>
-                <p>Your account information.</p>
-              </div>
-              <i class="mdi mdi-account-outline header-icon"></i>
-            </div>
-
-            <div class="account-list">
-              <div class="account-row">
-                <div>
-                  <span class="account-label">Username</span>
-                  <strong>{{ profile.user?.username || "—" }}</strong>
-                </div>
-
-                <i class="mdi mdi-account-outline"></i>
-              </div>
-
-              <div class="account-row">
-                <div>
-                  <span class="account-label">Email</span>
-                  <strong>{{ profile.user?.email || "—" }}</strong>
-                </div>
-
-                <i class="mdi mdi-email-outline"></i>
-              </div>
-
-              <div class="account-row">
-                <div>
-                  <span class="account-label">Role</span>
-                  <strong class="green">{{ formattedRole }}</strong>
-                </div>
-
-                <i class="mdi mdi-shield-account-outline"></i>
-              </div>
-
-              <div class="account-row">
-                <div>
-                  <span class="account-label">Status</span>
-                  <strong class="green">{{ profile.user?.status || "Active" }}</strong>
-                </div>
-
-                <i class="mdi mdi-check-circle-outline"></i>
-              </div>
-
-              <div
-                v-if="profile.user?.joinedAt"
-                class="account-row"
-              >
-
-                <div>
-                  <span class="account-label">Member since</span>
-                  <strong>
-                    {{
-                      new Date(
-                        profile.user.joinedAt
-                      ).toLocaleDateString()
-                    }}
-                  </strong>
-                </div>
-
-                <i class="mdi mdi-calendar-outline"></i>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+          </template>
 
         <section class="quick-actions">
           <div class="quick-header">
             <div>
               <h3>Quick actions</h3>
-              <p>Jump back into the competition.</p>
+              <p>Quick access to available actions.</p>
             </div>
           </div>
 
           <div class="action-grid">
-            <router-link
-              to="/tournaments"
-              class="action-card"
-            >
-
+            <router-link to="/tournaments" class="action-card">
               <div class="action-icon">
                 <i class="mdi mdi-trophy-outline"></i>
               </div>
-
 
               <div class="action-info">
                 <strong>Browse tournaments</strong>
@@ -414,10 +358,10 @@
             </router-link>
 
             <router-link
+              v-if="profile.user?.role === 'player'"
               to="/my-tournaments"
               class="action-card"
             >
-
               <div class="action-icon">
                 <i class="mdi mdi-gamepad-variant-outline"></i>
               </div>
@@ -431,22 +375,51 @@
             </router-link>
 
             <router-link
-              v-if="
-                profile.user?.role === 'organizer' ||
-                profile.user?.role === 'admin'
-              "
+              v-if="profile.user?.role === 'organizer'"
               to="/tournaments/create"
               class="action-card"
             >
-
               <div class="action-icon">
                 <i class="mdi mdi-plus-circle-outline"></i>
               </div>
 
-
               <div class="action-info">
                 <strong>Create tournament</strong>
                 <span>Start a new competition.</span>
+              </div>
+
+              <i class="mdi mdi-arrow-right action-arrow"></i>
+            </router-link>
+
+            <router-link
+              v-if="profile.user?.role === 'admin'"
+              to="/users"
+              class="action-card"
+            >
+              <div class="action-icon">
+                <i class="mdi mdi-account-group-outline"></i>
+              </div>
+
+              <div class="action-info">
+                <strong>Manage users</strong>
+                <span>Manage users and assign roles.</span>
+              </div>
+
+              <i class="mdi mdi-arrow-right action-arrow"></i>
+            </router-link>
+
+            <router-link
+              v-if="profile.user?.role === 'admin'"
+              to="/statistics"
+              class="action-card"
+            >
+              <div class="action-icon">
+                <i class="mdi mdi-chart-box-outline"></i>
+              </div>
+
+              <div class="action-info">
+                <strong>Statistics</strong>
+                <span>View platform statistics.</span>
               </div>
 
               <i class="mdi mdi-arrow-right action-arrow"></i>
@@ -457,7 +430,6 @@
     </main>
   </div>
 </template>
-
 
 <script setup>
 import {
@@ -506,6 +478,14 @@ onMounted(() => {
   loadProfile();
 });
 
+const profileDescription = computed(() => {
+  const role = profile.value?.user?.role;
+
+  if (role === "organizer") return "Tournament organizer on eSports Tournament.";
+  if (role === "admin") return "Platform administrator on eSports Tournament.";
+
+  return "Competitive player on eSports Tournament.";
+});
 
 const userInitial = computed(() => {
   const username =
@@ -1306,6 +1286,54 @@ const formattedRole = computed(() => {
   }
 
   .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.organizer-section,
+.organizer-tournaments {
+  margin-top: 24px;
+}
+
+.organizer-stats {
+  margin-top: 14px;
+}
+
+.organizer-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  margin-top: 24px;
+  align-items: stretch;
+}
+
+.organizer-tournaments-card,
+.organizer-account-card {
+  min-width: 0;
+}
+
+.organizer-account-card .account-list {
+  margin-top: 14px;
+}
+
+.organizer-account-card .account-row {
+  padding: 13px 0;
+}
+
+.organizer-account-card .account-row:first-child {
+  padding-top: 0;
+}
+
+.organizer-account-card .account-row:last-child {
+  padding-bottom: 0;
+}
+
+.organizer-tournaments-card .tournament-row {
+  padding: 14px 0;
+}
+
+@media (max-width: 900px) {
+  .organizer-content {
     grid-template-columns: 1fr;
   }
 }

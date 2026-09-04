@@ -1,11 +1,9 @@
 <template>
   <div class="tournaments-page">
-
     <section class="hero">
       <div class="hero-content">
         <h1>Esports Tournaments</h1>
         <p>Join competitive events, climb ranks and win prizes.</p>
-
         <div class="filters">
           <input v-model="search" placeholder="Search tournaments..." />
 
@@ -90,13 +88,18 @@
           <span>🌍 {{ t.region }}</span>
         </div>
 
-        <button class="btn" :disabled="t.status == 'ENDED'" @click="joinTournament(t._id)">{{ getButtonText(t)}}
-        </button>
-
+        <button v-if="auth.role !== 'organizer' && auth.role !== 'admin'" class="btn" :disabled="t.status == 'ENDED'" @click="joinTournament(t._id)">
+          <i
+            :class="[
+              'mdi',
+              t.status === 'LIVE'
+                ? 'mdi-broadcast'
+                : t.status === 'ENDED'
+                  ? 'mdi-check-circle-outline'
+                  : 'mdi-login-variant'
+          ]"></i>{{ getButtonText(t)}}</button>
       </div>
-
     </section>
-
   </div>
 </template>
 
@@ -208,6 +211,11 @@ const getButtonText = (t) => {
 const joinTournament = async (id) => {
   if (!auth.isAuthenticated){
     router.push({ path: "/login", query: {redirect: "/tournaments"}});
+    return;
+  }
+
+  if(auth.role !== "player"){
+    alert("Only players can join tournaments!");
     return;
   }
 

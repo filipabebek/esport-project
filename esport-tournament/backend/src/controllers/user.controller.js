@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Participation = require("../models/participation.model");
+const Tournament = require("../models/tournament.model");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -192,6 +193,47 @@ exports.getMyProfileData = async (req, res) => {
       },
     ];
 
+    let organizerStats = null;
+    let organizedTournaments = [];
+
+    if (
+      user.role === "organizer" ||
+      user.role === "admin"
+    ) {
+      organizedTournaments = await Tournament.find({
+        organizer: userId,
+      })
+        .populate("organizer", "username email")
+        .sort({ createdAt: -1 });
+
+      const tournamentIds = organizedTournaments.map(
+        (tournament) => tournament._id
+      );
+
+      const totalParticipants =
+        await Participation.countDocuments({
+          tournament: {
+            $in: tournamentIds,
+          },
+        });
+
+      const activeTournaments =
+        organizedTournaments.filter(
+          (tournament) =>
+            tournament.status === "LIVE" ||
+            tournament.status === "UPCOMING"
+        ).length;
+
+      organizerStats = {
+        organizedTournaments:
+          organizedTournaments.length,
+
+        activeTournaments,
+
+        totalParticipants,
+      };
+    }
+
     res.json({
       user: {
         id: user._id,
@@ -213,10 +255,10 @@ exports.getMyProfileData = async (req, res) => {
       },
 
       recentTournaments,
-
       favoriteGames,
-
       achievements,
+      organizerStats,
+      organizedTournaments,
     });
 
   } catch (err) {

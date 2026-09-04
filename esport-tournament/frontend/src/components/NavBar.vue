@@ -126,8 +126,7 @@ const menuItems = computed(() => {
   if (role === "organizer") {
     return [
       { title: "Dashboard", to: "/dashboard" },
-      { title: "Turniri", to: "/tournaments" },
-      { title: "Moji turniri", to: "/my-tournaments" },
+      { title: "Tournaments", to: "/tournaments" },
       { title: "Create tournament", to: "/tournaments/create" },
       { title: "Results", to: "/results" },
     ];
