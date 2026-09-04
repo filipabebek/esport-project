@@ -1,7 +1,6 @@
 <template>
   <div class="home">
 
-    <!-- dekoracija/blurr na backgroundu -->
     <div class="bg-blur"></div>
 
     <section class="hero">

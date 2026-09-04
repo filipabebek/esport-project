@@ -20,25 +20,49 @@
 
     <div class="right-actions">
 
-      <button class="icon-btn">
-        <i class="mdi mdi-bell"></i>
-      </button>
+      <div v-if="authStore.isAuthenticated" class="user-menu">
 
-      <div class="user-menu">
-        <button class="icon-btn">
-            <i class="mdi mdi-account-circle"></i>
-        </button>
+  <button class="profile-btn">
+    <i class="mdi mdi-account-circle"></i>
 
-        <div class="dropdown">
-          <div class="username">
-            {{ authStore.user?.username || "User" }}
-          </div>
+    <span>
+      {{ authStore.user?.username || "User" }}
+    </span>
 
-          <router-link to="/profile">Profil</router-link>
-          <router-link to="/settings">Postavke</router-link>
-          <button @click="logout">Odjava</button>
+    <i class="mdi mdi-chevron-down dropdown-arrow"></i>
+  </button>
+
+  <div class="dropdown">
+
+    <div class="profile-info">
+      <i class="mdi mdi-account-circle"></i>
+
+      <div>
+        <div class="username">
+          {{ authStore.user?.username || "User" }}
+        </div>
+
+        <div class="user-role">
+          {{ authStore.role }}
         </div>
       </div>
+    </div>
+
+    <div class="dropdown-line"></div>
+
+    <router-link to="/profile">
+      <i class="mdi mdi-account-outline"></i>
+      Profil
+    </router-link>
+
+    <button @click="logout" class="logout-btn">
+      <i class="mdi mdi-logout"></i>
+      Odjava
+    </button>
+
+  </div>
+
+</div>
 
     </div>
 
@@ -122,7 +146,7 @@ const menuItems = computed(() => {
 
 function logout() {
   authStore.logout();
-  router.push("/login");
+  router.push("/");
 }
 </script>
 
@@ -205,40 +229,123 @@ function logout() {
   position: relative;
 }
 
-.dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background: rgba(20,20,25,0.95);
-  backdrop-filter: blur(10px);
-  color: white;
-  min-width: 150px;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+.user-menu:hover .dropdown {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.user-menu:hover .dropdown {
-  display: block;
+.user-menu:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.profile-btn:hover {
+  color: #4BDE4B;
+  background: rgba(75, 222, 75, 0.08);
+}
+
+.profile-btn .mdi-account-circle {
+  font-size: 21px;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 7px;
+}
+
+.profile-info > i {
+  font-size: 25px;
+  color: #4BDE4B;
+}
+
+.username {
+  color: white;
+  font-weight: 500;
+}
+
+.user-role {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  margin-top: 1px;
+  text-transform: capitalize;
+}
+
+.dropdown-line {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 4px 0;
+}
+
+.dropdown {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 180px;
+  background: rgba(20,20,25,0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 7px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    visibility 0.2s;
+}
+
+.dropdown-arrow {
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
+  transition: transform 0.2s;
 }
 
 .dropdown a,
 .dropdown button {
-  display: block;
-  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
   text-decoration: none;
   border: none;
+  border-radius: 5px;
   width: 100%;
   text-align: left;
   background: transparent;
-  color: white;
+  color: rgba(255,255,255,0.8);
+  font: inherit;
   cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.2s;
 }
 
-.dropdown a:hover,
-.dropdown button:hover {
+.dropdown a:hover {
+  color: #4BDE4B;
   background: rgba(75,222,75,0.1);
+}
+
+.logout-btn:hover {
+  color: #ff6464 !important;
+  background: rgba(255,100,100,0.08) !important;
 }
 
 .mobile-menu {

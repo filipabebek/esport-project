@@ -12,22 +12,50 @@ import CreateTournamentPage from "../views/CreateTournamentPage.vue";
 import UsersPage from "../views/UsersPage.vue";
 import StatisticsPage from "../views/StatisticsPage.vue";
 
-const router = createRouter ({
+import Profile from "../views/Profile.vue";
+
+const router = createRouter({
   history: createWebHistory(),
   routes: [
-  { path: "/", component: HomePage },
-  { path: "/home", component: HomePage },
-  { path: "/tournaments", component: Tournaments },
-  { path: "/games", component: Games },
-  { path: "/login", component: Login, meta: {hideNavbar: true} },
-  { path: "/register", component: Register, meta: {hideNavbar: true} },
-  { path: "/dashboard", component: Dashboard },
+    { path: "/", component: HomePage },
+    { path: "/home", component: HomePage },
+    { path: "/tournaments", component: Tournaments },
+    { path: "/games", component: Games },
+    { path: "/login", component: Login, meta: { hideNavbar: true } },
+    { path: "/register", component: Register, meta: { hideNavbar: true } },
 
-  { path: "/my-tournaments", component: MyTournamentsPage },
-  { path: "/tournaments/create", component: CreateTournamentPage },
-  { path: "/users", component: UsersPage },
-  { path: "/statistics", component: StatisticsPage },
-]});
+    { path: "/profile", component: Profile },
+
+    { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
+    { path: "/my-tournaments", component: MyTournamentsPage, meta: { requiresAuth: true } },
+
+    { path: "/tournaments/create", component: CreateTournamentPage, meta: { requiresAuth: true, roles: ["organizer", "admin"] } },
+
+    { path: "/users", component: UsersPage, meta: { requiresAuth: true, roles: ["admin"] } },
+    { path: "/statistics", component: StatisticsPage, meta: { requiresAuth: true, roles: ["admin"] } },
+  ]
+});
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
+
+  const isAuthenticated = !!token;
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next("/login");
+  }
+  if (to.meta.roles) {
+    const allowedRoles = to.meta.roles;
+
+    if (!user || !allowedRoles.includes(user.role)) {
+      return next("/dashboard");
+    }
+  }
+  next();
+});
 
 
 export default router;

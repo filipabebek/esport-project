@@ -36,7 +36,7 @@
         <div class="badge">🔥 FEATURED</div>
 
         <h2>{{ featuredTournament.name }}</h2>
-        <p>{{ featuredTournament.desc }}</p>
+        <p>{{ featuredTournament.description }}</p>
 
         <div class="featured-meta">
           <span>💰 {{ featuredTournament.prize }}</span>
@@ -44,7 +44,7 @@
           <span>🌍 {{ featuredTournament.region }}</span>
         </div>
 
-        <button class="btn">Join Now</button>
+        <button class="btn" @click="joinTournament(featuredTournament._id)">Join Now</button>
 
       </div>
     </section>
@@ -67,7 +67,7 @@
         </div>
 
         <h3>{{ t.name }}</h3>
-        <p class="desc">{{ t.desc }}</p>
+        <p class="desc">{{ t.description }}</p>
 
         <p v-if="t.status === 'UPCOMING'" class="countdown">
           Starts in: {{ t.startsIn }}
@@ -76,13 +76,13 @@
         <div class="progress">
           <div
             class="bar"
-            :style="{ width: (t.players / t.slots) * 100 + '%' }"
+            :style="{ width: getProgress(t) + '%' }"
           ></div>
         </div>
 
         <div class="meta">
           <span>💰 {{ t.prize }}</span>
-          <span>👥 {{ t.players }}/{{ t.slots }}</span>
+          <span>👥 {{ t.players }}/{{ t.maxPlayers }}</span>
         </div>
 
         <div class="meta">
@@ -90,7 +90,7 @@
           <span>🌍 {{ t.region }}</span>
         </div>
 
-        <button class="btn":disabled="t.status == 'ENDED'">{{ getButtonText(t)}}
+        <button class="btn" :disabled="t.status == 'ENDED'" @click="joinTournament(t._id)">{{ getButtonText(t)}}
         </button>
 
       </div>
@@ -102,8 +102,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import api from "../services/api";
+import { useAuthStore } from "../store/auth";
 
 const tournaments = ref([]);
 
@@ -111,7 +112,10 @@ const search = ref("");
 const statusFilter = ref("");
 const gameFilter = ref("");
 const view = ref("tournaments");
+
 const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 
 const gameMap = {
   "CS2": "CS2",
@@ -137,12 +141,16 @@ const players = ref([
 ]);
 
 const load = async () => {
-  const res = await api.get("/tournaments");
+  try {
+    const res = await api.get("/tournaments");
 
-  tournaments.value = res.data.map(t => ({
+    tournaments.value = res.data.map(t => ({
     ...t,
     startsIn: getTimeLeft(t.date)
   }));
+  } catch (err){
+    console.error("Failed to load tournaments: ", err);
+  }
 };
 
 const filteredTournaments = computed(() => {
@@ -196,6 +204,40 @@ const getButtonText = (t) => {
   if (t.status === "ENDED") return "Tournament Ended";
   return "Join Tournament";
 };
+
+const joinTournament = async (id) => {
+  if (!auth.isAuthenticated){
+    router.push({ path: "/login", query: {redirect: "/tournaments"}});
+    return;
+  }
+
+  try{
+    const res = await api.post(`/tournaments/${id}/join`);
+    alert(res.data.message);
+
+    await load();
+
+  } catch (err){
+    console.error("Failed to join the tournament", err);
+
+    if(err.response){
+      alert(err.response.data.message || "Failed to join tournament");
+    }
+    else {
+      alert("Server is not responding.");
+    }
+    
+  }
+};
+
+const getProgress = (t) => {
+  if(!t.maxPlayers || t.maxPlayers <= 0){
+    return 0;
+  }
+
+  const progress = (t.players / t.maxPlayers) * 100;
+  return Math.min(progress, 100);
+}
 
 onMounted(load);
 </script>

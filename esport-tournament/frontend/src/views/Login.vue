@@ -60,14 +60,24 @@ const router = useRouter();
 const login = async () => {
   try {
     await auth.login(email.value, password.value);
-    router.push("/");
-  } catch (err) {
-    console.error("Login failed:", err);
-  }
-};
 
-const cancel = () => {
-  router.push("/");
+    console.log("LOGIN SUCCESS");
+    console.log("User:", auth.user);
+    console.log("Token:", auth.token);
+
+    const redirect = router.currentRoute.value.query.redirect || "/";
+
+    router.push(redirect);
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    console.error("SERVER RESPONSE:", err.response?.data);
+
+    alert(
+      err.response?.data?.message ||
+      "Login failed"
+    );
+  }
 };
 </script>
 

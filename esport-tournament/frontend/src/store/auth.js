@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import api from "../services/api";
 
-export const useAuthStore = defineStore ("auth", {
+export const useAuthStore = defineStore("auth", {
     state: () => ({
         user: JSON.parse(localStorage.getItem("user")) || null,
         token: localStorage.getItem("token") || null,
@@ -10,10 +10,12 @@ export const useAuthStore = defineStore ("auth", {
     getters: {
         isAuthenticated: (state) => !!state.token,
         role: (state) => state.user?.role || null,
+        isOrganizer: (state) => state.user?.role === "organizer" || state.user?.role === "admin",
+        isAdmin: (state) => state.user?.role === "admin",
     },
 
     actions: {
-        setAuth(data){
+        setAuth(data) {
             this.token = data.token;
             this.user = data.user;
 
@@ -27,11 +29,7 @@ export const useAuthStore = defineStore ("auth", {
                 password,
             });
 
-            this.token = res.data.token;
-            this.user = res.data.user;
-
-            localStorage.setItem("token", this.token);
-            localStorage.setItem("user", JSON.stringify(this.user));
+            this.setAuth(res.data);
         },
 
         logout() {
