@@ -4,16 +4,12 @@ const c = require("../controllers/user.controller");
 const auth = require("../middlewares/auth.middleware");
 const role = require("../middlewares/role.middleware");
 
-// GET ALL USERS (admin only)
 router.get("/", auth, role("admin"), c.getAllUsers);
 
-// GET USER PROFILE
-router.get("/me", auth, c.getMyProfile);
+router.get("/me/profile-data", auth, c.getMyProfileData);
 
-// UPDATE USER
-router.put("/:id", auth, c.updateUser);
+router.put("/:id", auth, role("admin"), c.updateUser);
 
-// DELETE USER (admin)
 router.delete("/:id", auth, role("admin"), c.deleteUser);
 
 module.exports = router;
