@@ -1,4 +1,4 @@
-# Naziv aplikacije: FilmsFY
+# Naziv aplikacije: eSport Tournament
 
 ### Sastav tima:
 - Filipa Bebek <fbebek@student.unipu.hr>
