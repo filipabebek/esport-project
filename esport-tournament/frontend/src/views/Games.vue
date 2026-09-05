@@ -2,111 +2,53 @@
   <div class="games-page">
 
     <section class="hero-banner">
-
       <div class="hero-content">
-
         <h1>Explore Games</h1>
-
         <p>Discover competitive titles, tournaments and communities.</p>
-
         <div class="search-box">
-          <input
-            v-model="search"
-            placeholder="Search games..."
-          />
+          <input v-model="search" placeholder="Search games..."/>
         </div>
-
       </div>
-
     </section>
 
     <section class="grid">
-
-      <div
-        v-for="game in filteredGames"
-        :key="game.name"
-        class="card"
-      >
-
+      <div v-for="game in filteredGames" :key="game._id" class="card">
         <div class="card-image">
-          <img
-            :src="game.image"
-            :alt="game.name"
-          />
+          <img :src="game.image" :alt="game.name"/>
         </div>
 
         <div class="card-content">
-
           <h3>{{ game.name }}</h3>
-
-          <p class="desc">
-            {{ game.desc }}
-          </p>
+          <p class="desc">{{ game.description }}</p>
 
           <div class="meta">
-            <span>{{ game.players }} players</span>
             <span class="tag">Competitive</span>
           </div>
 
           <button class="btn" @click="viewTournaments(game.name)">View Tournaments</button>
-
         </div>
-
       </div>
-
     </section>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import api from "../services/api";
 
 const search = ref("");
 const router = useRouter();
 
-const games = ref([
-  {
-    name: "Valorant",
-    image: "/games/valorant.jpg",
-    desc: "Tactical FPS with agents.",
-    players: "20M+"
-  },
-  {
-    name: "CS2",
-    image: "/games/cs2.jpg",
-    desc: "Classic competitive FPS experience.",
-    players: "20M+"
-  },
-  {
-    name: "League of Legends",
-    image: "/games/lol.png",
-    desc: "MOBA strategy and team fights.",
-    players: "120M+"
-  },
-  {
-    name: "Dota 2",
-    image: "/games/dota.jpg",
-    desc: "Deep strategy MOBA gameplay.",
-    players: "10M+"
-  },
-  {
-    name: "Fortnite",
-    image: "/games/fortnite.jpg",
-    desc: "Build-and-fight battle royale.",
-    players: "300M+"
-  },
-]);
+const games = ref([]);
 
-const gameMap = {
-  "CS2": "CS2",
-  "CSGO": "CS2",
-  "Counter-Strike": "CS2",
-  "Valorant": "Valorant",
-  "League of Legends": "League of Legends",
-  "Dota 2": "Dota 2",
-  "Fortnite": "Fortnite"
+const loadGames = async () => {
+  try {
+    const res = await api.get("/games");
+    games.value = res.data;
+  } catch (err) {
+    console.error("Failed to load games:", err);
+  }
 };
 
 const filteredGames = computed(() => {
@@ -121,15 +63,14 @@ const viewTournaments = (gameName) => {
   router.push({
     path: "/tournaments",
     query: {
-      game: gameMap[gameName] || gameName
+      game: gameName
     }
   });
 };
-
+onMounted(loadGames);
 </script>
 
 <style scoped>
-
 .games-page {
   min-height: 100vh;
   padding: 100px 50px;
@@ -139,7 +80,6 @@ const viewTournaments = (gameName) => {
 
 .hero-banner {
   height: 450px;
-
   background:
     linear-gradient(
       rgba(0,0,0,.55),
@@ -149,12 +89,9 @@ const viewTournaments = (gameName) => {
 
   background-size: cover;
   background-position: center;
-
   border-radius: 24px;
-
   display: flex;
   align-items: center;
-
   margin-bottom: 60px;
 }
 
@@ -184,57 +121,40 @@ const viewTournaments = (gameName) => {
 
 .search-box input {
   width: 320px;
-
   padding: 14px 18px;
   margin-right: 180px;
-
   border-radius: 12px;
   border: 1px solid rgba(75,222,75,.2);
-
   background: rgba(255,255,255,.05);
   color: white;
-
   outline: none;
-
   transition: .3s;
 }
 
 .search-box input:focus {
   border-color: #4BDE4B;
-
-  box-shadow:
-    0 0 25px rgba(75,222,75,.2);
+  box-shadow: 0 0 25px rgba(75,222,75,.2);
 }
 
 .grid {
   display: grid;
-
   grid-template-columns: repeat(auto-fit, 340px);
   justify-content: center;
-
   gap: 25px;
 }
 
 .card {
   background: #12141b;
-
   border-radius: 18px;
   overflow: hidden;
-
   border: 1px solid rgba(255,255,255,.06);
-
   transition: .3s ease;
 }
 
 .card:hover {
   transform: translateY(-8px);
-
-  border-color:
-    rgba(75,222,75,.3);
-
-  box-shadow:
-    0 15px 35px rgba(0,0,0,.5),
-    0 0 25px rgba(75,222,75,.15);
+  border-color: rgba(75,222,75,.3);
+  box-shadow: 0 15px 35px rgba(0,0,0,.5), 0 0 25px rgba(75,222,75,.15);
 }
 
 .card-image {
@@ -245,9 +165,7 @@ const viewTournaments = (gameName) => {
 .card-image img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
   transition: .4s;
 }
 
@@ -273,9 +191,7 @@ const viewTournaments = (gameName) => {
 .meta {
   display: flex;
   justify-content: space-between;
-
   margin-bottom: 20px;
-
   font-size: 13px;
 }
 
@@ -286,21 +202,13 @@ const viewTournaments = (gameName) => {
 
 .btn {
   width: 100%;
-
   padding: 14px;
-
   border: none;
   border-radius: 12px;
-
-  background:
-    rgba(75,222,75,.15);
-
+  background: rgba(75,222,75,.15);
   color: #4BDE4B;
-
   font-weight: 600;
-
   cursor: pointer;
-
   transition: .25s;
 }
 

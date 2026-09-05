@@ -1,105 +1,143 @@
 <template>
-  <header class="navbar">
-
-    <router-link to="/" class="logo">
-      <img src="/logo.png" alt="Logo" />
-    </router-link>
-
-    <nav class="center-nav">
-      <router-link
-        v-for="item in menuItems"
-        :key="item.to"
-        :to="item.to"
-        class="nav-btn"
-      >
-        {{ item.title }}
+  <div class="navbar-wrapper">
+    <header class="navbar" :class="{ 'navbar-hidden': navbarHidden }">
+      <router-link to="/" class="logo">
+        <img src="/logo.png" alt="Logo" />
       </router-link>
-    </nav>
 
-    <div class="spacer"></div>
+      <nav class="center-nav">
+        <router-link
+          v-for="item in menuItems"
+          :key="item.to"
+          :to="item.to"
+          class="nav-btn"
+        >
+          {{ item.title }}
+        </router-link>
+      </nav>
 
-    <div class="right-actions">
+      <div class="spacer"></div>
 
-      <div v-if="authStore.isAuthenticated" class="user-menu">
+      <div class="right-actions">
+        <div v-if="authStore.isAuthenticated" class="user-menu">
+          <button class="profile-btn">
+            <i class="mdi mdi-account-circle"></i>
+            <span>{{ authStore.user?.username || "User" }}</span>
+            <i class="mdi mdi-chevron-down dropdown-arrow"></i>
+          </button>
 
-  <button class="profile-btn">
-    <i class="mdi mdi-account-circle"></i>
+          <div class="dropdown">
+            <div class="profile-info">
+              <i class="mdi mdi-account-circle"></i>
 
-    <span>
-      {{ authStore.user?.username || "User" }}
-    </span>
+              <div>
+                <div class="username">
+                  {{ authStore.user?.username || "User" }}
+                </div>
 
-    <i class="mdi mdi-chevron-down dropdown-arrow"></i>
-  </button>
+                <div class="user-role">
+                  {{ authStore.role }}
+                </div>
+              </div>
+            </div>
 
-  <div class="dropdown">
+            <div class="dropdown-line"></div>
 
-    <div class="profile-info">
-      <i class="mdi mdi-account-circle"></i>
+            <router-link to="/profile">
+              <i class="mdi mdi-account-outline"></i>
+              Profil
+            </router-link>
 
-      <div>
-        <div class="username">
-          {{ authStore.user?.username || "User" }}
-        </div>
-
-        <div class="user-role">
-          {{ authStore.role }}
+            <button class="logout-btn" @click="logout">
+              <i class="mdi mdi-logout"></i>
+              Odjava
+            </button>
+          </div>
         </div>
       </div>
+
+      <button class="mobile-menu" @click="drawer = !drawer">☰</button>
+    </header>
+
+    <div v-if="drawer" class="mobile-drawer">
+      <div class="mobile-nav">
+        <router-link
+          v-for="item in menuItems"
+          :key="item.to"
+          :to="item.to"
+          class="mobile-item"
+          @click="drawer = false"
+        >
+          {{ item.title }}
+        </router-link>
+
+        <div
+          v-if="authStore.isAuthenticated"
+          class="mobile-divider"
+        ></div>
+
+        <router-link
+          v-if="authStore.isAuthenticated"
+          to="/profile"
+          class="mobile-item"
+          @click="drawer = false"
+        >
+          <i class="mdi mdi-account-outline"></i>
+          Profil
+        </router-link>
+
+        <button
+          v-if="authStore.isAuthenticated"
+          class="mobile-item mobile-logout"
+          @click="logout"
+        >
+          <i class="mdi mdi-logout"></i>
+          Odjava
+        </button>
+      </div>
     </div>
-
-    <div class="dropdown-line"></div>
-
-    <router-link to="/profile">
-      <i class="mdi mdi-account-outline"></i>
-      Profil
-    </router-link>
-
-    <button @click="logout" class="logout-btn">
-      <i class="mdi mdi-logout"></i>
-      Odjava
-    </button>
-
-  </div>
-
-</div>
-
-    </div>
-
-    <!-- Meni za mobitele / doraditi i promjeniti -->
-    <button class="mobile-menu" @click="drawer = !drawer">
-      ☰
-    </button>
-
-  </header>
-
-  <!-- Sekcija za mobitele -->
-  <div v-if="drawer" class="mobile-drawer">
-    <router-link
-      v-for="item in menuItems"
-      :key="item.to"
-      :to="item.to"
-      class="mobile-item"
-      @click="drawer = false"
-    >
-      {{ item.title }}
-    </router-link>
-
-    <hr />
-
-    <router-link to="/profile">Profil</router-link>
-    <button @click="logout">Odjava</button>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../store/auth";
 
 const authStore = useAuthStore();
 const router = useRouter();
 const drawer = ref(false);
+
+const navbarHidden = ref(false);
+let lastScrollY = 0;
+
+const handleScroll = () => {
+  if (drawer.value) {
+    navbarHidden.value = false;
+    return;
+  }
+
+  const currentScrollY = window.scrollY;
+
+  if (currentScrollY <= 20) {
+    navbarHidden.value = false;
+  } else if (currentScrollY > lastScrollY) {
+    navbarHidden.value = true;
+  } else {
+    navbarHidden.value = false;
+  }
+
+  lastScrollY = currentScrollY;
+};
+
+onMounted(() => {
+  lastScrollY = window.scrollY;
+  window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
 
 const menuItems = computed(() => {
   const role = authStore.role;
@@ -119,6 +157,7 @@ const menuItems = computed(() => {
     return [
       { title: "Home", to: "/" },
       { title: "Tournaments", to: "/tournaments" },
+      { title: "Games", to: "/games"},
       { title: "My Tournaments", to: "/my-tournaments" },
     ];
   }
@@ -128,24 +167,23 @@ const menuItems = computed(() => {
       { title: "Dashboard", to: "/dashboard" },
       { title: "Tournaments", to: "/tournaments" },
       { title: "Create tournament", to: "/tournaments/create" },
-      { title: "Results", to: "/results" },
     ];
   }
 
   if (role === "admin") {
     return [
-      { title: "Turniri", to: "/tournaments" },
-      { title: "Korisnici", to: "/users" },
-      { title: "Statistika", to: "/statistics" },
+      { title: "Tournaments", to: "/tournaments" },
+      { title: "Users", to: "/users" },
+      { title: "Statistic", to: "/statistics" },
     ];
   }
-
   return [];
 });
 
 function logout() {
   authStore.logout();
   router.push("/");
+  drawer.value = false;
 }
 </script>
 
@@ -155,14 +193,18 @@ function logout() {
   align-items: center;
   padding: 0 20px;
   height: 65px;
-
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-
   background: transparent;
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+}
+
+.navbar-hidden {
+  transform: translateY(-100%);
 }
 
 .logo img {
@@ -200,28 +242,6 @@ function logout() {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.icon-btn i {
-  color: rgba(255,255,255,0.8);
-}
-
-.icon-btn:hover i {
-  color: #4BDE4B;
-}
-
-.icon-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  position: relative;
-  transition: 0.2s;
-}
-
-.icon-btn:hover {
-  transform: translateY(-1px);
 }
 
 .user-menu {
@@ -349,34 +369,90 @@ function logout() {
 
 .mobile-menu {
   display: none;
-  background: none;
-  border: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
   color: white;
-  font-size: 26px;
+  font-size: 22px;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mobile-menu:hover {
+  color: #4BDE4B;
+  background: rgba(75,222,75,0.08);
+  border-color: rgba(75,222,75,0.18);
 }
 
 .mobile-drawer {
   position: fixed;
-  top: 60px;
-  left: 0;
-  width: 200px;
-  height: 100%;
-  background: white;
+  top: 72px;
+  left: 12px;
+  right: 12px;
+  z-index: 999;
+  padding: 10px;
+  background: rgba(13,15,20,0.98);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+}
+
+.mobile-nav {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  gap: 10px;
+  gap: 5px;
 }
 
 .mobile-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255,255,255,0.8);
   text-decoration: none;
-  color: black;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mobile-item:hover,
+.mobile-item.router-link-active {
+  color: #4BDE4B;
+  background: rgba(75,222,75,0.08);
+}
+
+.mobile-divider {
+  height: 1px;
+  margin: 6px 3px;
+  background: rgba(255,255,255,0.07);
+}
+
+.mobile-logout {
+  color: rgba(255,255,255,0.65);
+}
+
+.mobile-logout:hover {
+  color: #ff6666;
+  background: rgba(255,102,102,0.08);
 }
 
 @media (max-width: 900px) {
   .center-nav {
     display: none;
+  }
+
+  .navbar-hidden {
+    transform: none;
   }
 
   .mobile-menu {

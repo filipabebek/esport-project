@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const Participation = require("../models/participation.model");
 const Tournament = require("../models/tournament.model");
+const Enrollment = require("../models/enrollment.model");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -15,43 +16,38 @@ exports.getMyProfileData = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await User
-      .findById(userId)
-      .select("-password");
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const participations = await Participation.find({
-      user: userId,
+      user: userId
     })
-      .populate(
-        "tournament",
-        "name game region date status prize"
-      )
+      .populate({
+        path: "tournament",
+        select: "name game region date status prize",
+        populate: {
+          path: "game",
+          select: "name description image"
+        }
+      })
       .sort({ updatedAt: -1 });
 
     const validParticipations = participations.filter(
-      (participation) => participation.tournament
+      participation => participation.tournament
     );
 
-    const tournaments =
-      validParticipations.length;
+    const tournaments = validParticipations.length;
 
-    const finishedParticipations =
-      validParticipations.filter(
-        (participation) =>
-          participation.status === "finished"
-      );
+    const finishedParticipations = validParticipations.filter(
+      participation => participation.status === "finished"
+    );
 
-    const wins =
-      finishedParticipations.filter(
-        (participation) =>
-          participation.placement === 1
-      ).length;
+    const wins = finishedParticipations.filter(
+      participation => participation.placement === 1
+    ).length;
 
     const winRate =
       finishedParticipations.length > 0
@@ -62,12 +58,10 @@ exports.getMyProfileData = async (req, res) => {
 
     const gameCounts = {};
 
-    validParticipations.forEach((participation) => {
-      const game = participation.tournament.game;
+    validParticipations.forEach(participation => {
+      const game = participation.tournament.game?.name;
 
-      if (!game) {
-        return;
-      }
+      if (!game) return;
 
       if (!gameCounts[game]) {
         gameCounts[game] = 0;
@@ -76,80 +70,56 @@ exports.getMyProfileData = async (req, res) => {
       gameCounts[game]++;
     });
 
-
     const favoriteGames = Object.entries(gameCounts)
       .map(([game, tournamentCount]) => ({
         game,
-        tournamentCount,
+        tournamentCount
       }))
       .sort(
         (a, b) =>
           b.tournamentCount - a.tournamentCount
       );
 
-    const recentTournaments =
-      validParticipations
-        .slice(0, 5)
-        .map((participation) => ({
-          participationId: participation._id,
-
-          tournamentId:
-            participation.tournament._id,
-
-          name:
-            participation.tournament.name,
-
-          game:
-            participation.tournament.game,
-
-          region:
-            participation.tournament.region,
-
-          date:
-            participation.tournament.date,
-
-          tournamentStatus:
-            participation.tournament.status,
-
-          participationStatus:
-            participation.status,
-
-          placement:
-            participation.placement,
-
-          prize:
-            participation.tournament.prize,
-        }));
+    const recentTournaments = validParticipations
+      .slice(0, 5)
+      .map(participation => ({
+        participationId: participation._id,
+        tournamentId: participation.tournament._id,
+        name: participation.tournament.name,
+        game: participation.tournament.game?.name || "Unknown game",
+        region: participation.tournament.region,
+        date: participation.tournament.date,
+        tournamentStatus: participation.tournament.status,
+        participationStatus: participation.status,
+        placement: participation.placement,
+        prize: participation.tournament.prize
+      }));
 
     const ranking = await Participation.aggregate([
       {
         $match: {
           status: "finished",
-          placement: 1,
-        },
+          placement: 1
+        }
       },
-
       {
         $group: {
           _id: "$user",
           wins: {
-            $sum: 1,
-          },
-        },
+            $sum: 1
+          }
+        }
       },
-
       {
         $sort: {
-          wins: -1,
-        },
-      },
+          wins: -1
+        }
+      }
     ]);
 
-
     const rankIndex = ranking.findIndex(
-      (player) =>
-        player._id.toString() ===
-        userId.toString()
+      player =>
+        player._id.toString() === userId.toString()
     );
 
     const globalRank =
@@ -160,66 +130,58 @@ exports.getMyProfileData = async (req, res) => {
     const achievements = [
       {
         name: "First Competition",
-        description:
-          "Participate in your first tournament",
+        description: "Participate in your first tournament",
         unlocked: tournaments >= 1,
-        icon: "mdi-gamepad-variant",
+        icon: "mdi-gamepad-variant"
       },
-
       {
         name: "Tournament Winner",
-        description:
-          "Win your first tournament",
+        description: "Win your first tournament",
         unlocked: wins >= 1,
-        icon: "mdi-trophy",
+        icon: "mdi-trophy"
       },
-
       {
         name: "Experienced Player",
-        description:
-          "Participate in 10 tournaments",
+        description: "Participate in 10 tournaments",
         unlocked: tournaments >= 10,
-        icon: "mdi-star-outline",
+        icon: "mdi-star-outline"
       },
-
       {
         name: "Top 10 Player",
-        description:
-          "Reach the global top 10",
+        description: "Reach the global top 10",
         unlocked:
           globalRank !== null &&
           globalRank <= 10,
-        icon: "mdi-medal-outline",
-      },
+        icon: "mdi-medal-outline"
+      }
     ];
 
     let organizerStats = null;
     let organizedTournaments = [];
+    let adminStats = null;
 
-    if (
-      user.role === "organizer" ||
-      user.role === "admin"
-    ) {
+    if (user.role === "organizer") {
       organizedTournaments = await Tournament.find({
-        organizer: userId,
+        organizer: userId
       })
         .populate("organizer", "username email")
+        .populate("game", "name description image")
         .sort({ createdAt: -1 });
 
       const tournamentIds = organizedTournaments.map(
-        (tournament) => tournament._id
+        tournament => tournament._id
       );
 
       const totalParticipants =
         await Participation.countDocuments({
           tournament: {
-            $in: tournamentIds,
-          },
+            $in: tournamentIds
+          }
         });
 
       const activeTournaments =
         organizedTournaments.filter(
-          (tournament) =>
+          tournament =>
             tournament.status === "LIVE" ||
             tournament.status === "UPCOMING"
         ).length;
@@ -227,10 +189,39 @@ exports.getMyProfileData = async (req, res) => {
       organizerStats = {
         organizedTournaments:
           organizedTournaments.length,
-
         activeTournaments,
+        totalParticipants
+      };
+    }
 
-        totalParticipants,
+    if (user.role === "admin") {
+      const [
+        totalUsers,
+        players,
+        organizers,
+        admins,
+        totalTournaments,
+        activeTournaments
+      ] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ role: "player" }),
+        User.countDocuments({ role: "organizer" }),
+        User.countDocuments({ role: "admin" }),
+        Tournament.countDocuments(),
+        Tournament.countDocuments({
+          status: {
+            $in: ["LIVE", "UPCOMING"]
+          }
+        })
+      ]);
+
+      adminStats = {
+        totalUsers,
+        players,
+        organizers,
+        admins,
+        tournaments: totalTournaments,
+        activeTournaments
       };
     }
 
@@ -240,18 +231,15 @@ exports.getMyProfileData = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
-
-        joinedAt:
-          user.createdAt || null,
-
-        status: "Active",
+        joinedAt: user.createdAt || null,
+        status: "Active"
       },
 
       stats: {
         tournaments,
         wins,
         winRate,
-        globalRank,
+        globalRank
       },
 
       recentTournaments,
@@ -259,17 +247,13 @@ exports.getMyProfileData = async (req, res) => {
       achievements,
       organizerStats,
       organizedTournaments,
+      adminStats
     });
 
   } catch (err) {
-    console.error(
-      "Error fetching profile data:",
-      err
-    );
+    console.error("Error fetching profile data:", err);
 
-    res.status(500).json({
-      message: "Error fetching profile data",
-    });
+    res.status(500).json({ message: "Error fetching profile data" });
   }
 };
 
@@ -302,9 +286,7 @@ exports.getMyStats = async (req, res) => {
   } catch (err) {
     console.error("Error fetching statistics:", err);
 
-    res.status(500).json({
-      message: "Error fetching player statistics",
-    });
+    res.status(500).json({ message: "Error fetching player statistics", });
   }
 };
 
@@ -312,28 +294,84 @@ exports.updateUser = async (req, res) => {
   try {
     const { username, email, role } = req.body;
 
-    if (role && !["player", "organizer", "admin"].includes(role)
-    ) {
+    if (role && !["player", "organizer", "admin"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { username, email },
-      { new: true }
-    ).select("-password");
+    const user = await User.findById(req.params.id);
 
-    res.json(user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (
+      String(req.user.id) === String(user._id) &&
+      role &&
+      role !== user.role
+    ) {
+      return res.status(400).json({ message: "You cannot change your own role" });
+    }
+
+    if (username !== undefined) user.username = username;
+    if (email !== undefined) user.email = email;
+    if (role !== undefined) user.role = role;
+
+    await user.save();
+
+    res.json({
+      message: "User updated successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (err) {
+    console.error("Update user error:", err);
+
     res.status(500).json({ message: err.message });
   }
 };
 
 exports.deleteUser = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User deleted" });
+    if (String(req.user.id) === String(req.params.id)) {
+      return res.status(400).json({
+        message: "You cannot delete your own account"
+      });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "organizer") {
+      const tournamentCount = await Tournament.countDocuments({
+        organizer: user._id
+      });
+
+      if (tournamentCount > 0) {
+        return res.status(400).json({ message: "This organizer still has tournaments. Delete their tournaments first." });
+      }
+    }
+
+    await Participation.deleteMany({
+      user: user._id
+    });
+
+    await Enrollment.deleteMany({
+      user: user._id
+    });
+
+    await User.findByIdAndDelete(user._id);
+
+    res.json({ message: "User deleted successfully" });
   } catch (err) {
+    console.error("Delete user error:", err);
+
     res.status(500).json({ message: err.message });
   }
 };

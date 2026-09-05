@@ -1,10 +1,7 @@
 <template>
   <div class="register-page">
-
     <div class="bg-glow"></div>
-
     <div class="register-card">
-
       <div class="logo">
         <img src="/logo.png" alt="logo" />
       </div>
@@ -13,48 +10,19 @@
       <p class="subtitle">Join the eSport Tournament platform</p>
 
       <div class="form">
+        <input v-model="username" type="text" placeholder="Username"/>
+        <input v-model="email" type="email" placeholder="Email"/>
+        <input v-model="password" type="password" placeholder="Password"/>
+        <input v-model="confirmPassword" type="password" placeholder="Confirm password"/>
 
-        <input
-          v-model="username"
-          type="text"
-          placeholder="Username"
-        />
-
-        <input
-          v-model="email"
-          type="email"
-          placeholder="Email"
-        />
-
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-        />
-
-        <input
-          v-model="confirmPassword"
-          type="password"
-          placeholder="Confirm password"
-        />
-
-        <button @click="register">
-          Register
-        </button>
-
-        <button class="cancel-btn" @click="cancel">
-          Cancel
-        </button>
-
+        <button @click="register">Register</button>
+        <button class="cancel-btn" @click="cancel">Cancel</button>
       </div>
 
-      <p class="login-link">
-        Already have an account?
+      <p class="login-link">Already have an account?
         <router-link to="/login">Login</router-link>
       </p>
-
     </div>
-
   </div>
 </template>
 
@@ -80,7 +48,7 @@ const register = async () => {
     await api.post("/auth/register", {
       username: username.value,
       email: email.value,
-      password: password.value,
+      password: password.value
     });
 
     router.push("/login");
@@ -120,16 +88,12 @@ const cancel = () => {
 .register-card {
   width: 380px;
   padding: 35px;
-
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-
   backdrop-filter: blur(12px);
-
   color: white;
   text-align: center;
-
   box-shadow: 0 0 40px rgba(75, 222, 75, 0.08);
   z-index: 2;
 }
@@ -160,10 +124,8 @@ h1 {
 input {
   padding: 12px 14px;
   border-radius: 10px;
-
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
-
   color: white;
   outline: none;
   transition: 0.2s;
@@ -178,11 +140,9 @@ button {
   padding: 12px;
   border: none;
   border-radius: 10px;
-
   background: #4BDE4B;
   color: black;
   font-weight: bold;
-
   cursor: pointer;
   transition: 0.2s;
 }

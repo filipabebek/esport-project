@@ -5,13 +5,11 @@ exports.getDashboard = async (req, res) => {
     try {
         const organizerId = req.user.id;
 
-        const tournaments = await Tournament.find({
-            organizer: organizerId,
-        }).sort({ createdAt: -1 });
+        const tournaments = await Tournament.find({ organizer: organizerId, })
+            .populate("game", "name description image")
+            .sort({ createdAt: -1 });
 
-        const tournamentIds = tournaments.map(
-            (tournament) => tournament._id
-        );
+        const tournamentIds = tournaments.map((tournament) => tournament._id);
 
         const totalParticipants =
             await Participation.countDocuments({
@@ -118,7 +116,7 @@ exports.getDashboard = async (req, res) => {
                 .map((tournament) => ({
                     _id: tournament._id,
                     name: tournament.name,
-                    game: tournament.game,
+                    game: tournament.game?.name || "Unknown game",
                     region: tournament.region,
                     date: tournament.date,
                     prize: tournament.prize,
@@ -144,14 +142,8 @@ exports.getDashboard = async (req, res) => {
             recentResults,
         });
     } catch (err) {
-        console.error(
-            "Error fetching organizer dashboard:",
-            err
-        );
+        console.error("Error fetching organizer dashboard:", err);
 
-        res.status(500).json({
-            message:
-                "Error fetching organizer dashboard",
-        });
+        res.status(500).json({ message: "Error fetching organizer dashboard", });
     }
 };

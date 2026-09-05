@@ -6,19 +6,16 @@ import Dashboard from "../views/Dashboard.vue";
 import Tournaments from "../views/Tournaments.vue";
 import HomePage from "../views/HomePage.vue";
 import Games from "../views/Games.vue";
-
 import MyTournamentsPage from "../views/MyTournamentsPage.vue";
 import CreateTournamentPage from "../views/CreateTournamentPage.vue";
 import UsersPage from "../views/UsersPage.vue";
 import StatisticsPage from "../views/StatisticsPage.vue";
-
 import Profile from "../views/Profile.vue";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: "/", component: HomePage },
-    { path: "/home", component: HomePage },
     { path: "/tournaments", component: Tournaments },
     { path: "/games", component: Games },
     { path: "/login", component: Login, meta: { hideNavbar: true } },
@@ -33,14 +30,14 @@ const router = createRouter({
 
     { path: "/users", component: UsersPage, meta: { requiresAuth: true, roles: ["admin"] } },
     { path: "/statistics", component: StatisticsPage, meta: { requiresAuth: true, roles: ["admin"] } },
+    { path: "/tournaments/:id", name: "TournamentDetails", component: () => import("../views/TournamentDetails.vue") },
+    { path: "/tournaments/:id/edit", name: "EditTournament", component: () => import("../views/EditTournament.vue") }
   ]
 });
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
-  const user = JSON.parse(
-    localStorage.getItem("user") || "null"
-  );
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const isAuthenticated = !!token;
 
@@ -56,6 +53,5 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
-
 
 export default router;

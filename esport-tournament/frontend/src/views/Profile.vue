@@ -9,9 +9,7 @@
         <span>Loading profile...</span>
       </div>
 
-      <div v-else-if="error" class="profile-error">
-        {{ error }}
-      </div>
+      <div v-else-if="error" class="profile-error">{{ error }}</div>
 
       <template v-else-if="profile">
         <section class="page-header">
@@ -22,8 +20,7 @@
 
         <section class="profile-banner">
           <div class="profile-main">
-            <div class="avatar">
-              {{ userInitial }}
+            <div class="avatar">{{ userInitial }}
               <span class="online-dot"></span>
             </div>
 
@@ -87,42 +84,27 @@
                   <p>Your latest competitive activity.</p>
                 </div>
 
-                <router-link to="/my-tournaments">
-                  View all
+                <router-link to="/my-tournaments">View all
                   <i class="mdi mdi-arrow-right"></i>
                 </router-link>
               </div>
 
               <div v-if="profile.recentTournaments?.length" class="tournament-list">
-                <div
-                  v-for="tournament in profile.recentTournaments"
-                  :key="tournament.participationId"
-                  class="tournament-row"
-                >
+                <div v-for="tournament in profile.recentTournaments" :key="tournament.participationId" class="tournament-row">
                   <div class="tournament-icon">
                     <i class="mdi mdi-gamepad-variant-outline"></i>
                   </div>
 
                   <div class="tournament-info">
                     <strong>{{ tournament.name }}</strong>
-                    <span>
-                      {{ tournament.game }}
-                      <span v-if="tournament.region" class="dot">•</span>
-                      {{ tournament.region }}
+                    <span>{{ tournament.game || "Unknown game" }}
+                      <span v-if="tournament.region" class="dot">•</span>{{ tournament.region }}
                     </span>
                   </div>
 
-                  <div
-                    v-if="tournament.placement"
-                    class="placement"
-                    :class="{ winner: tournament.placement === 1, second: tournament.placement === 2 }"
-                  >
-                    #{{ tournament.placement }}
-                  </div>
+                  <div v-if="tournament.placement" class="placement" :class="{ winner: tournament.placement === 1, second: tournament.placement === 2 }">#{{ tournament.placement }}</div>
 
-                  <div v-else class="tournament-status">
-                    {{ tournament.tournamentStatus }}
-                  </div>
+                  <div v-else class="tournament-status">{{ tournament.tournamentStatus }}</div>
                 </div>
               </div>
 
@@ -173,12 +155,7 @@
               </div>
 
               <div v-if="profile.achievements?.length" class="achievements-grid">
-                <div
-                  v-for="achievement in profile.achievements"
-                  :key="achievement.name"
-                  class="achievement"
-                  :class="{ locked: !achievement.unlocked }"
-                >
+                <div v-for="achievement in profile.achievements" :key="achievement.name" class="achievement" :class="{ locked: !achievement.unlocked }">
                   <div class="achievement-icon">
                     <i :class="['mdi', achievement.unlocked ? achievement.icon : 'mdi-lock-outline']"></i>
                   </div>
@@ -243,33 +220,25 @@
                   <p>Tournaments created and managed by you.</p>
                 </div>
 
-                <router-link to="/tournaments/create">
-                  Create tournament
+                <router-link to="/tournaments/create">Create tournament
                   <i class="mdi mdi-plus"></i>
                 </router-link>
               </div>
 
               <div v-if="profile.organizedTournaments?.length" class="tournament-list">
-                <div
-                  v-for="tournament in profile.organizedTournaments"
-                  :key="tournament._id"
-                  class="tournament-row"
-                >
+                <div v-for="tournament in profile.organizedTournaments" :key="tournament._id" class="tournament-row">
                   <div class="tournament-icon">
                     <i class="mdi mdi-trophy-outline"></i>
                   </div>
 
                   <div class="tournament-info">
                     <strong>{{ tournament.name }}</strong>
-                    <span>
-                      {{ tournament.game }}
-                      <span v-if="tournament.region" class="dot">•</span>
-                      {{ tournament.region }}
+                    <span>{{ tournament.game?.name || "Unknown game" }}
+                      <span v-if="tournament.region" class="dot">•</span>{{ tournament.region }}
                     </span>
                   </div>
 
-                  <div class="tournament-status">
-                    {{ tournament.status }}
+                  <div class="tournament-status">{{ tournament.status }}
                   </div>
                 </div>
               </div>
@@ -335,6 +304,145 @@
           </section>
           </template>
 
+        <template v-else-if="profile.user?.role === 'admin'">
+          <section class="admin-section">
+            <div class="section-header">
+              <div>
+                <h3>Admin overview</h3>
+                <p>Overview of platform users and tournaments.</p>
+              </div>
+              <i class="mdi mdi-shield-crown-outline header-icon"></i>
+            </div>
+
+            <div class="stats-grid admin-stats">
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-account-group-outline"></i></div>
+                <div>
+                  <strong>{{ profile.adminStats?.totalUsers ?? 0 }}</strong>
+                  <span>Total users</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-gamepad-variant-outline"></i></div>
+                <div>
+                  <strong>{{ profile.adminStats?.players ?? 0 }}</strong>
+                  <span>Players</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-shield-account-outline"></i></div>
+                <div>
+                  <strong>{{ profile.adminStats?.organizers ?? 0 }}</strong>
+                  <span>Organizers</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon"><i class="mdi mdi-trophy-outline"></i></div>
+                <div>
+                  <strong>{{ profile.adminStats?.tournaments ?? 0 }}</strong>
+                  <span>Tournaments</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="admin-content">
+            <div class="dashboard-card admin-account-card">
+              <div class="section-header">
+                <div>
+                  <h3>Account information</h3>
+                  <p>Your administrator account details.</p>
+                </div>
+                <i class="mdi mdi-account-outline header-icon"></i>
+              </div>
+
+              <div class="account-list">
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Username</span>
+                    <strong>{{ profile.user?.username || "—" }}</strong>
+                  </div>
+                  <i class="mdi mdi-account-outline"></i>
+                </div>
+
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Email</span>
+                    <strong>{{ profile.user?.email || "—" }}</strong>
+                  </div>
+                  <i class="mdi mdi-email-outline"></i>
+                </div>
+
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Role</span>
+                    <strong class="green">{{ formattedRole }}</strong>
+                  </div>
+                  <i class="mdi mdi-shield-account-outline"></i>
+                </div>
+
+                <div class="account-row">
+                  <div>
+                    <span class="account-label">Status</span>
+                    <strong class="green">{{ profile.user?.status || "Active" }}</strong>
+                  </div>
+                  <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+
+                <div v-if="profile.user?.joinedAt" class="account-row">
+                  <div>
+                    <span class="account-label">Member since</span>
+                    <strong>{{ new Date(profile.user.joinedAt).toLocaleDateString() }}</strong>
+                  </div>
+                  <i class="mdi mdi-calendar-outline"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card admin-tools-card">
+              <div class="section-header">
+                <div>
+                  <h3>Administration</h3>
+                  <p>Platform management tools.</p>
+                </div>
+                <i class="mdi mdi-cog-outline header-icon"></i>
+              </div>
+
+              <div class="admin-tools">
+                <router-link to="/users" class="admin-tool">
+                  <div class="tool-icon"><i class="mdi mdi-account-cog-outline"></i></div>
+                  <div>
+                    <strong>Manage users</strong>
+                    <span>View users, change roles and remove accounts.</span>
+                  </div>
+                  <i class="mdi mdi-arrow-right"></i>
+                </router-link>
+
+                <router-link to="/statistics" class="admin-tool">
+                  <div class="tool-icon"><i class="mdi mdi-chart-box-outline"></i></div>
+                  <div>
+                    <strong>Platform statistics</strong>
+                    <span>View user and tournament activity.</span>
+                  </div>
+                  <i class="mdi mdi-arrow-right"></i>
+                </router-link>
+
+                <router-link to="/tournaments" class="admin-tool">
+                  <div class="tool-icon"><i class="mdi mdi-trophy-outline"></i></div>
+                  <div>
+                    <strong>Review tournaments</strong>
+                    <span>Browse and manage platform tournaments.</span>
+                  </div>
+                  <i class="mdi mdi-arrow-right"></i>
+                </router-link>
+              </div>
+            </div>
+          </section>
+        </template>
+
         <section class="quick-actions">
           <div class="quick-header">
             <div>
@@ -374,11 +482,7 @@
               <i class="mdi mdi-arrow-right action-arrow"></i>
             </router-link>
 
-            <router-link
-              v-if="profile.user?.role === 'organizer'"
-              to="/tournaments/create"
-              class="action-card"
-            >
+            <router-link v-if="profile.user?.role === 'organizer'" to="/tournaments/create" class="action-card">
               <div class="action-icon">
                 <i class="mdi mdi-plus-circle-outline"></i>
               </div>
@@ -391,11 +495,7 @@
               <i class="mdi mdi-arrow-right action-arrow"></i>
             </router-link>
 
-            <router-link
-              v-if="profile.user?.role === 'admin'"
-              to="/users"
-              class="action-card"
-            >
+            <router-link v-if="profile.user?.role === 'admin'" to="/users" class="action-card">
               <div class="action-icon">
                 <i class="mdi mdi-account-group-outline"></i>
               </div>
@@ -408,11 +508,7 @@
               <i class="mdi mdi-arrow-right action-arrow"></i>
             </router-link>
 
-            <router-link
-              v-if="profile.user?.role === 'admin'"
-              to="/statistics"
-              class="action-card"
-            >
+            <router-link v-if="profile.user?.role === 'admin'" to="/statistics" class="action-card">
               <div class="action-icon">
                 <i class="mdi mdi-chart-box-outline"></i>
               </div>
@@ -432,47 +528,31 @@
 </template>
 
 <script setup>
-import {
-  computed,
-  ref,
-  onMounted,
-} from "vue";
-
+import { computed, ref, onMounted} from "vue";
 import api from "../services/api";
 
-
 const profile = ref(null);
-
 const loading = ref(true);
-
 const error = ref(null);
-
 
 const loadProfile = async () => {
   try {
     loading.value = true;
     error.value = null;
 
-    const res = await api.get(
-      "/users/me/profile-data"
-    );
+    const res = await api.get("/users/me/profile-data");
 
     profile.value = res.data;
 
   } catch (err) {
-    console.error(
-      "Failed to load profile:",
-      err
-    );
+    console.error("Failed to load profile:", err);
 
-    error.value =
-      "Failed to load profile.";
+    error.value ="Failed to load profile.";
 
   } finally {
     loading.value = false;
   }
 };
-
 
 onMounted(() => {
   loadProfile();
@@ -488,8 +568,7 @@ const profileDescription = computed(() => {
 });
 
 const userInitial = computed(() => {
-  const username =
-    profile.value?.user?.username;
+  const username = profile.value?.user?.username;
 
   if (!username) {
     return "U";
@@ -502,8 +581,7 @@ const userInitial = computed(() => {
 
 
 const formattedRole = computed(() => {
-  const role =
-    profile.value?.user?.role;
+  const role = profile.value?.user?.role;
 
   if (!role) {
     return "Player";
@@ -515,7 +593,6 @@ const formattedRole = computed(() => {
   );
 });
 </script>
-
 
 <style scoped>
 .profile-page {
@@ -712,27 +789,6 @@ const formattedRole = computed(() => {
   color: rgba(75,222,75,0.8);
 }
 
-.edit-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-  padding: 9px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.85);
-  font: inherit;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.edit-btn:hover {
-  color: #4BDE4B;
-  border-color: rgba(75,222,75,0.3);
-  background: rgba(75,222,75,0.06);
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -790,10 +846,6 @@ const formattedRole = computed(() => {
   grid-template-columns: 1.7fr 1fr;
   gap: 18px;
   margin-bottom: 18px;
-}
-
-.bottom-grid {
-  grid-template-columns: 1.5fr 1fr;
 }
 
 .dashboard-card {
@@ -1290,8 +1342,7 @@ const formattedRole = computed(() => {
   }
 }
 
-.organizer-section,
-.organizer-tournaments {
+.organizer-section {
   margin-top: 24px;
 }
 
@@ -1340,6 +1391,89 @@ const formattedRole = computed(() => {
 
 @media (max-width: 430px) {
   .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-section {
+  margin-bottom: 20px;
+}
+
+.admin-stats {
+  margin-top: 18px;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.admin-account-card,
+.admin-tools-card {
+  min-height: 100%;
+}
+
+.admin-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.admin-tool {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 9px;
+  background: rgba(255,255,255,.02);
+  color: white;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+.admin-tool:hover {
+  border-color: rgba(75,222,75,.22);
+  background: rgba(75,222,75,.04);
+}
+
+.tool-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(75,222,75,.07);
+  color: #4BDE4B;
+}
+
+.admin-tool > div:nth-child(2) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.admin-tool strong {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.admin-tool span {
+  margin-top: 3px;
+  color: rgba(255,255,255,.35);
+  font-size: 9px;
+}
+
+.admin-tool > i:last-child {
+  color: rgba(255,255,255,.25);
+}
+
+@media (max-width: 800px) {
+  .admin-content {
     grid-template-columns: 1fr;
   }
 }

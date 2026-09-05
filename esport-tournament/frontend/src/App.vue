@@ -6,6 +6,8 @@ const route = useRoute();
 </script>
 
 <template>
-  <NavBar v-if="!route.meta.hideNavbar" />
-  <RouterView />
+  <div class="app">
+    <NavBar v-if="!route.meta.hideNavbar" />
+    <RouterView />
+  </div>
 </template>

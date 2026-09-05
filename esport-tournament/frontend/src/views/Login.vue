@@ -1,10 +1,7 @@
 <template>
   <div class="login-page">
-
     <div class="bg-glow"></div>
-
     <div class="login-card">
-
       <div class="logo">
         <img src="/logo.png" alt="logo" />
       </div>
@@ -13,36 +10,17 @@
       <p class="subtitle">Login to continue your esports journey</p>
 
       <div class="form">
+        <input v-model="email" type="email" placeholder="Email"/>
+        <input v-model="password" type="password" placeholder="Password"/>
 
-        <input
-          v-model="email"
-          type="email"
-          placeholder="Email"
-        />
-
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-        />
-
-        <button @click="login">
-          Login
-        </button>
-
-        <button class="cancel-btn" @click="cancel">
-          Cancel
-        </button>
-
+        <button @click="login">Login</button>
+        <button class="cancel-btn" @click="cancel">Cancel</button>
       </div>
 
-      <p class="register">
-        Don't have an account?
+      <p class="register">Don't have an account?
         <router-link to="/register">Register</router-link>
       </p>
-
     </div>
-
   </div>
 </template>
 
@@ -61,23 +39,16 @@ const login = async () => {
   try {
     await auth.login(email.value, password.value);
 
-    console.log("LOGIN SUCCESS");
-    console.log("User:", auth.user);
-    console.log("Token:", auth.token);
-
     const redirect = router.currentRoute.value.query.redirect || "/";
-
     router.push(redirect);
 
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    console.error("SERVER RESPONSE:", err.response?.data);
-
-    alert(
-      err.response?.data?.message ||
-      "Login failed"
-    );
+    alert(err.response?.data?.message || "Login failed");
   }
+};
+
+const cancel = () => {
+  router.push("/");
 };
 </script>
 
@@ -87,7 +58,6 @@ const login = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-
   background: #0b0c10;
   position: relative;
   overflow: hidden;
@@ -107,16 +77,12 @@ const login = async () => {
 .login-card {
   width: 380px;
   padding: 35px;
-
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-
   backdrop-filter: blur(12px);
-
   color: white;
   text-align: center;
-
   box-shadow: 0 0 40px rgba(75, 222, 75, 0.08);
   z-index: 2;
 }

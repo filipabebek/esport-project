@@ -1,55 +1,34 @@
 <template>
   <div class="home">
-
     <div class="bg-blur"></div>
-
     <section class="hero">
-
       <div class="hero-inner">
-
         <p class="tag">Competitive eSports Platform</p>
-
-        <h1>
-          Build your <span>gaming career</span> through tournaments.
-        </h1>
-
-        <p class="subtitle">
-          Join structured competitions, track rankings, and compete with players worldwide.
-        </p>
+        <h1>Build your <span>gaming career</span> through tournaments.</h1>
+        <p class="subtitle">Join structured competitions, track rankings, and compete with players worldwide.</p>
 
         <div class="actions">
-          <router-link to="/tournaments" class="btn primary">
-            Explore tournaments
-          </router-link>
-
-          <router-link to="/register" class="btn ghost">
-            Get started
-          </router-link>
+          <router-link to="/tournaments" class="btn primary">Explore tournaments</router-link>
+          <router-link to="/register" class="btn ghost">Get started</router-link>
         </div>
 
         <div class="mini-stats">
           <div>
-            <strong>120+</strong>
-            <span>Tournaments</span>
+            <strong>120+</strong><span>Tournaments</span>
           </div>
 
           <div>
-            <strong>3k+</strong>
-            <span>Players</span>
+            <strong>3k+</strong><span>Players</span>
           </div>
 
           <div>
-            <strong>25</strong>
-            <span>Games</span>
+            <strong>25</strong><span>Games</span>
           </div>
         </div>
-
       </div>
-
     </section>
 
     <section class="features">
-
       <div class="feature">
         <h3>Structured competition</h3>
         <p>Fair matchmaking and tournament brackets for all skill levels.</p>
@@ -64,14 +43,9 @@
         <h3>Player growth</h3>
         <p>Rank up, track performance and build your profile.</p>
       </div>
-
     </section>
-
   </div>
 </template>
-
-<script setup>
-</script>
 
 <style scoped>
 .home {

@@ -4,13 +4,10 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-      return res.status(400).json({
-        message: "All fields are required"
-      });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const exists = await User.findOne({
@@ -21,9 +18,7 @@ exports.register = async (req, res) => {
     });
 
     if (exists) {
-      return res.status(400).json({
-        message: "Username or email already exists"
-      });
+      return res.status(400).json({ message: "Username or email already exists" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -46,16 +41,10 @@ exports.register = async (req, res) => {
     });
 
   } catch (err) {
-
     console.error(err);
-
-    res.status(500).json({
-      message: "Registration failed"
-    });
-
+    res.status(500).json({ message: "Registration failed" });
   }
 };
-
 
 exports.login = async (req, res) => {
   try {
@@ -63,9 +52,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
-        message: "Email and password are required"
-      });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await User.findOne({
@@ -73,20 +60,13 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password"
-      });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const ok = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const ok = await bcrypt.compare(password, user.password);
 
     if (!ok) {
-      return res.status(401).json({
-        message: "Invalid email or password"
-      });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const token = jwt.sign(
@@ -111,12 +91,7 @@ exports.login = async (req, res) => {
     });
 
   } catch (err) {
-
     console.error(err);
-
-    res.status(500).json({
-      message: "Login failed"
-    });
-
+    res.status(500).json({ message: "Login failed" });
   }
 };

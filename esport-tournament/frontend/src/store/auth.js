@@ -10,7 +10,7 @@ export const useAuthStore = defineStore("auth", {
     getters: {
         isAuthenticated: (state) => !!state.token,
         role: (state) => state.user?.role || null,
-        isOrganizer: (state) => state.user?.role === "organizer" || state.user?.role === "admin",
+        isOrganizer: (state) => state.user?.role === "organizer",
         isAdmin: (state) => state.user?.role === "admin",
     },
 

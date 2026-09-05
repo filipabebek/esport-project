@@ -9,9 +9,7 @@
         <span>Loading dashboard...</span>
       </div>
 
-      <div v-else-if="error" class="dashboard-error">
-        {{ error }}
-      </div>
+      <div v-else-if="error" class="dashboard-error">{{ error }}</div>
 
       <template v-else>
         <section class="page-header">
@@ -22,8 +20,7 @@
           </div>
 
           <router-link to="/tournaments/create" class="create-btn">
-            <i class="mdi mdi-plus"></i>
-            Create tournament
+            <i class="mdi mdi-plus"></i>Create tournament
           </router-link>
         </section>
 
@@ -82,30 +79,25 @@
             <template v-if="dashboard.nextTournament">
               <div class="next-content">
                 <div class="next-top">
-                  <span class="status-badge" :class="statusClass(dashboard.nextTournament.status)">
-                    {{ dashboard.nextTournament.status }}
-                  </span>
+                  <span class="status-badge" :class="statusClass(dashboard.nextTournament.status)">{{ dashboard.nextTournament.status }}</span>
 
                   <div>
                     <h2>{{ dashboard.nextTournament.name }}</h2>
-                    <p>{{ dashboard.nextTournament.game }} • {{ dashboard.nextTournament.region }}</p>
+                    <p>{{ dashboard.nextTournament.game?.name || "Unknown game"}} • {{ dashboard.nextTournament.region }}</p>
                   </div>
                 </div>
 
                 <div class="next-meta">
                   <span>
-                    <i class="mdi mdi-calendar-outline"></i>
-                    {{ formatDate(dashboard.nextTournament.date) }}
+                    <i class="mdi mdi-calendar-outline"></i>{{ formatDate(dashboard.nextTournament.date) }}
                   </span>
 
                   <span>
-                    <i class="mdi mdi-account-group-outline"></i>
-                    {{ tournamentPlayers(dashboard.nextTournament) }}/{{ dashboard.nextTournament.maxPlayers ?? 0 }} players
+                    <i class="mdi mdi-account-group-outline"></i>{{ tournamentPlayers(dashboard.nextTournament) }}/{{ dashboard.nextTournament.maxPlayers ?? 0 }} players
                   </span>
 
                   <span>
-                    <i class="mdi mdi-cash"></i>
-                    {{ dashboard.nextTournament.prize || "No prize" }}
+                    <i class="mdi mdi-cash"></i>{{ dashboard.nextTournament.prize || "No prize" }}
                   </span>
                 </div>
 
@@ -187,9 +179,7 @@
               <p>Recently created tournaments and their current status.</p>
             </div>
 
-            <router-link to="/my-tournaments">
-              View all
-              <i class="mdi mdi-arrow-right"></i>
+            <router-link to="/my-tournaments">View all<i class="mdi mdi-arrow-right"></i>
             </router-link>
           </div>
 
@@ -261,9 +251,7 @@
                   <span>{{ registration.tournamentName }}</span>
                 </div>
 
-                <span class="activity-date">
-                  {{ formatDate(registration.date) }}
-                </span>
+                <span class="activity-date">{{ formatDate(registration.date) }}</span>
               </div>
             </div>
 
@@ -297,9 +285,7 @@
                   <span>Winner: {{ result.winner || "Not entered" }}</span>
                 </div>
 
-                <span class="activity-date">
-                  {{ formatDate(result.date) }}
-                </span>
+                <span class="activity-date">{{ formatDate(result.date) }}</span>
               </div>
             </div>
 
@@ -966,10 +952,6 @@ onMounted(loadDashboard);
 
 .activity-date {
   flex-shrink: 0;
-}
-
-.quick-actions {
-  margin-top: 18px;
 }
 
 .action-grid {
